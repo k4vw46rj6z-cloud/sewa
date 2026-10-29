@@ -1,0 +1,312 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sewa Van Persendirian</title>
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1d2a24;--mut:#6b776f;--pri:#1f7a4d;--pri2:#16603b;--line:#e3e0d6;--bad:#d9d4c7;--sel:#1f7a4d;--rng:#d6efe2;--warn:#b4541a}
+@media(prefers-color-scheme:dark){:root{--bg:#121714;--card:#1b231e;--ink:#eaf0ec;--mut:#9aa8a0;--pri:#3fb27a;--pri2:#2e9663;--line:#2c3830;--bad:#2a322c;--sel:#3fb27a;--rng:#22402f;--warn:#e08a52}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem;margin:8px 0 4px}
+.blurb{color:var(--mut);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.card h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 10px}
+.step{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--pri);color:#fff;font-size:.75rem;align-items:center;justify-content:center;margin-right:6px}
+input[type=search],select,textarea,input[type=text],input[type=number]{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+.dest-list{max-height:240px;overflow:auto;margin-top:8px;border:1px solid var(--line);border-radius:10px}
+.dest-list button{display:flex;justify-content:space-between;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:11px 12px;color:var(--ink);font:inherit;cursor:pointer}
+.dest-list button:last-child{border-bottom:0}
+.dest-list button:hover,.dest-list button.on{background:var(--rng)}
+.dest-list small{color:var(--mut)}
+.group{padding:8px 12px;background:var(--bg);font-size:.75rem;color:var(--mut);font-weight:600;position:sticky;top:0}
+.chosen{margin-top:8px;font-weight:600;color:var(--pri)}
+.cal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-h button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;width:40px;height:40px;font-size:1.1rem;cursor:pointer}
+.cal-h button:disabled{opacity:.35;cursor:default}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dow{font-size:.72rem;color:var(--mut);text-align:center;padding:4px 0}
+.d{aspect-ratio:1;border:0;border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;cursor:pointer;position:relative}
+.d:disabled{background:transparent;color:var(--mut);opacity:.4;cursor:default}
+.d.booked{background:var(--bad);text-decoration:line-through;opacity:.8}
+.d.rng{background:var(--rng)}
+.d.sel{background:var(--sel);color:#fff;font-weight:700}
+.d.today::after{content:"";position:absolute;bottom:5px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--warn)}
+.legend{display:flex;gap:14px;font-size:.78rem;color:var(--mut);margin-top:10px;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:4px}
+.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--line)}
+.row:last-of-type{border:0}
+.total{font-size:1.6rem;font-weight:800;color:var(--pri)}
+.note{font-size:.8rem;color:var(--mut);margin-top:8px}
+.btn{display:block;width:100%;text-align:center;background:#25d366;color:#07391b;font-weight:700;text-decoration:none;padding:14px;border-radius:12px;border:0;font-size:1rem;cursor:pointer}
+.btn.off{background:var(--bad);color:var(--mut);pointer-events:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{font-size:.85rem;color:var(--mut);display:block;margin-bottom:4px}
+.err{color:var(--warn);font-size:.85rem;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="title"></h1>
+  <p class="blurb" id="blurb"></p>
+
+  <div class="card">
+    <h2><span class="step">1</span>Destinasi</h2>
+    <input type="search" id="q" placeholder="Cari destinasi (cth: Ipoh, Kuantan)…" autocomplete="off">
+    <div class="dest-list" id="list"></div>
+    <div class="chosen" id="chosen"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step">2</span>Tarikh</h2>
+    <div class="cal-h">
+      <button id="prev" aria-label="Bulan sebelum">‹</button>
+      <strong id="mlabel"></strong>
+      <button id="next" aria-label="Bulan seterusnya">›</button>
+    </div>
+    <div class="grid" id="cal"></div>
+    <div class="legend">
+      <span><i style="background:var(--bad)"></i>Telah ditempah</span>
+      <span><i style="background:var(--sel)"></i>Pilihan anda</span>
+      <span><i style="background:var(--rng)"></i>Julat</span>
+    </div>
+    <div class="note" id="datehint">Ketik tarikh mula, kemudian tarikh akhir. Ketik sekali untuk perjalanan sehari.</div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step">3</span>Maklumat anda</h2>
+    <div class="grid2">
+      <div><label for="nm">Nama</label><input type="text" id="nm" placeholder="Nama anda"></div>
+      <div><label for="pax">Bil. penumpang</label><input type="number" id="pax" min="1" max="20" value="8"></div>
+    </div>
+    <div style="margin-top:10px"><label for="nt">Catatan (pilihan)</label><textarea id="nt" rows="2" placeholder="Masa bertolak, singgah, dsb."></textarea></div>
+  </div>
+
+  <div class="card">
+    <h2>Anggaran harga</h2>
+    <div class="row"><span>Destinasi</span><b id="s-d">–</b></div>
+    <div class="row"><span>Jarak (sehala)</span><b id="s-k">–</b></div>
+    <div class="row"><span>Tarikh</span><b id="s-t">–</b></div>
+    <div class="row"><span>Tempoh</span><b id="s-n">–</b></div>
+    <div class="row"><span>Anggaran</span><span class="total" id="s-p">–</span></div>
+    <div class="note" id="rules"></div>
+    <div class="note">Harga hanyalah anggaran. Tempahan disahkan oleh pemilik melalui WhatsApp.</div>
+  </div>
+
+  <a class="btn off" id="wa" href="#" target="_blank" rel="noopener">Pilih destinasi &amp; tarikh dahulu</a>
+  <p class="note" style="text-align:center" id="from"></p>
+</div>
+
+<script>
+const DATA = {
+  v: 2,
+  name: "Sewa Van Persendirian",
+  blurb: "Semak tarikh kosong dan anggaran harga, kemudian terus WhatsApp pemilik untuk sahkan tempahan.",
+  phone: "0126911877",
+  origin: "Kampung Bukit Kuching, Jeram",
+  farFromKm: 300,
+  prices: { near: 350, far: 400, two: 600, extra: 300 },
+  destinations: [
+    {id:"d1",name:"Kuala Selangor",state:"Selangor",km:10},
+    {id:"d2",name:"Sekinchan",state:"Selangor",km:44},
+    {id:"d3",name:"Shah Alam",state:"Selangor",km:51},
+    {id:"d4",name:"Klang / Pelabuhan Klang",state:"Selangor",km:51},
+    {id:"d5",name:"Petaling Jaya",state:"Selangor",km:53},
+    {id:"d6",name:"Kuala Kubu Bharu",state:"Selangor",km:78},
+    {id:"d7",name:"Sabak Bernam",state:"Selangor",km:81},
+    {id:"d8",name:"KLIA / KLIA2",state:"Selangor",km:83},
+    {id:"d9",name:"Sepang (Bagan Lalang)",state:"Selangor",km:110},
+    {id:"d10",name:"Kuala Lumpur",state:"Wilayah Persekutuan",km:60},
+    {id:"d11",name:"Putrajaya / Cyberjaya",state:"Wilayah Persekutuan",km:78},
+    {id:"d12",name:"Seremban",state:"Negeri Sembilan",km:125},
+    {id:"d13",name:"Port Dickson",state:"Negeri Sembilan",km:124},
+    {id:"d14",name:"Bandar Melaka",state:"Melaka",km:192},
+    {id:"d15",name:"Muar",state:"Johor",km:230},
+    {id:"d16",name:"Segamat",state:"Johor",km:274},
+    {id:"d17",name:"Batu Pahat",state:"Johor",km:296},
+    {id:"d18",name:"Kluang",state:"Johor",km:313},
+    {id:"d19",name:"Johor Bahru",state:"Johor",km:378},
+    {id:"d20",name:"Pasir Gudang",state:"Johor",km:390},
+    {id:"d21",name:"Mersing (jeti Tioman)",state:"Johor",km:399},
+    {id:"d22",name:"Genting Highlands",state:"Pahang",km:94},
+    {id:"d23",name:"Janda Baik",state:"Pahang",km:86},
+    {id:"d24",name:"Fraser's Hill",state:"Pahang",km:117},
+    {id:"d25",name:"Karak",state:"Pahang",km:118},
+    {id:"d26",name:"Bentong",state:"Pahang",km:107},
+    {id:"d27",name:"Temerloh",state:"Pahang",km:175},
+    {id:"d28",name:"Raub",state:"Pahang",km:148},
+    {id:"d29",name:"Cameron Highlands",state:"Pahang",km:195},
+    {id:"d30",name:"Jerantut",state:"Pahang",km:217},
+    {id:"d31",name:"Kuala Lipis",state:"Pahang",km:202},
+    {id:"d32",name:"Taman Negara (Kuala Tahan)",state:"Pahang",km:281},
+    {id:"d33",name:"Kuantan",state:"Pahang",km:299},
+    {id:"d34",name:"Pekan",state:"Pahang",km:315},
+    {id:"d35",name:"Cherating",state:"Pahang",km:319},
+    {id:"d36",name:"Tanjung Malim",state:"Perak",km:70},
+    {id:"d37",name:"Teluk Intan",state:"Perak",km:113},
+    {id:"d38",name:"Tapah",state:"Perak",km:142},
+    {id:"d39",name:"Kampar",state:"Perak",km:162},
+    {id:"d40",name:"Ipoh",state:"Perak",km:199},
+    {id:"d41",name:"Lumut / Pangkor",state:"Perak",km:164},
+    {id:"d42",name:"Kuala Kangsar",state:"Perak",km:231},
+    {id:"d43",name:"Taiping",state:"Perak",km:231},
+    {id:"d44",name:"Gerik",state:"Perak",km:318},
+    {id:"d45",name:"Butterworth",state:"Pulau Pinang",km:317},
+    {id:"d46",name:"George Town",state:"Pulau Pinang",km:320},
+    {id:"d47",name:"Sungai Petani",state:"Kedah",km:340},
+    {id:"d48",name:"Alor Setar",state:"Kedah",km:403},
+    {id:"d49",name:"Kuala Kedah (jeti Langkawi)",state:"Kedah",km:404},
+    {id:"d50",name:"Kangar",state:"Perlis",km:449},
+    {id:"d51",name:"Kuala Perlis (jeti Langkawi)",state:"Perlis",km:449},
+    {id:"d52",name:"Gua Musang",state:"Kelantan",km:293},
+    {id:"d53",name:"Kota Bharu",state:"Kelantan",km:480},
+    {id:"d54",name:"Kemaman",state:"Terengganu",km:334},
+    {id:"d55",name:"Dungun",state:"Terengganu",km:404},
+    {id:"d56",name:"Kuala Terengganu",state:"Terengganu",km:467},
+    {id:"d57",name:"Marang",state:"Terengganu",km:459},
+    {id:"d58",name:"Kuala Besut (jeti Perhentian)",state:"Terengganu",km:571}
+  ],
+  // Tempahan sedia ada. Format: {"start":"2026-11-05","end":"2026-11-07"} (end pilihan)
+  bookings: []
+};
+
+const $ = id => document.getElementById(id);
+const P = DATA.prices;
+const MONTHS = ["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"];
+const DOW = ["Is","Se","Ra","Kh","Ju","Sa","Ah"]; // Isnin..Ahad
+const pad = n => String(n).padStart(2,"0");
+const key = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); };
+const fmt = d => `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;
+const rm = n => "RM" + n.toLocaleString("ms-MY");
+
+const today = new Date(); today.setHours(0,0,0,0);
+const todayKey = key(today);
+
+// tempahan -> set tarikh
+const booked = new Set();
+DATA.bookings.forEach(b => {
+  const s = parse(b.start), e = parse(b.end || b.start);
+  for (let d = new Date(s); d <= e; d.setDate(d.getDate()+1)) booked.add(key(d));
+});
+
+let dest = null, start = null, end = null;
+let view = new Date(today.getFullYear(), today.getMonth(), 1);
+
+$("title").textContent = DATA.name;
+$("blurb").textContent = DATA.blurb;
+$("from").textContent = "Bertolak dari " + DATA.origin;
+$("rules").textContent =
+  `Sehari: ${rm(P.near)} (kurang ${DATA.farFromKm} km) / ${rm(P.far)} (${DATA.farFromKm} km ke atas). ` +
+  `2 hari: ${rm(P.two)}. Setiap hari tambahan: +${rm(P.extra)}.`;
+
+/* ---------- Destinasi ---------- */
+function renderList() {
+  const q = $("q").value.trim().toLowerCase();
+  const items = DATA.destinations.filter(d => !q || (d.name + " " + d.state).toLowerCase().includes(q));
+  const box = $("list"); box.innerHTML = "";
+  if (!items.length) { box.innerHTML = '<div class="group">Tiada padanan</div>'; return; }
+  let lastState = null;
+  items.slice().sort((a,b) => a.km - b.km).forEach(d => {
+    if (!q && d.state !== lastState) { /* kumpulan mengikut negeri */ }
+    const b = document.createElement("button");
+    b.className = dest && dest.id === d.id ? "on" : "";
+    b.innerHTML = `<span>${d.name}<br><small>${d.state}</small></span><small>${d.km} km</small>`;
+    b.onclick = () => { dest = d; renderList(); update(); };
+    box.appendChild(b);
+  });
+}
+$("q").addEventListener("input", renderList);
+
+/* ---------- Kalendar ---------- */
+function renderCal() {
+  const y = view.getFullYear(), m = view.getMonth();
+  $("mlabel").textContent = `${MONTHS[m]} ${y}`;
+  $("prev").disabled = y === today.getFullYear() && m === today.getMonth();
+  const g = $("cal"); g.innerHTML = "";
+  DOW.forEach(n => { const e = document.createElement("div"); e.className = "dow"; e.textContent = n; g.appendChild(e); });
+  const first = new Date(y, m, 1);
+  const lead = (first.getDay() + 6) % 7; // Isnin = 0
+  for (let i = 0; i < lead; i++) g.appendChild(document.createElement("div"));
+  const days = new Date(y, m+1, 0).getDate();
+  for (let n = 1; n <= days; n++) {
+    const d = new Date(y, m, n), k = key(d);
+    const b = document.createElement("button");
+    b.className = "d"; b.textContent = n;
+    if (k === todayKey) b.classList.add("today");
+    if (d < today) b.disabled = true;
+    else if (booked.has(k)) { b.classList.add("booked"); b.disabled = true; }
+    if (start && k === key(start)) b.classList.add("sel");
+    if (end && k === key(end)) b.classList.add("sel");
+    if (start && end && d > start && d < end) b.classList.add("rng");
+    b.onclick = () => pick(d);
+    g.appendChild(b);
+  }
+}
+function rangeHasBooked(a, z) {
+  for (let d = new Date(a); d <= z; d.setDate(d.getDate()+1)) if (booked.has(key(d))) return true;
+  return false;
+}
+function pick(d) {
+  $("err").textContent = "";
+  if (!start || (start && end)) { start = d; end = null; }
+  else if (d < start) { start = d; }
+  else if (key(d) === key(start)) { end = null; }
+  else if (rangeHasBooked(start, d)) {
+    $("err").textContent = "Julat ini melibatkan tarikh yang sudah ditempah. Sila pilih julat lain.";
+    start = d; end = null;
+  } else end = d;
+  renderCal(); update();
+}
+$("prev").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()-1, 1); renderCal(); };
+$("next").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()+1, 1); renderCal(); };
+
+/* ---------- Harga ---------- */
+function nights() { return start ? Math.round(((end || start) - start) / 864e5) + 1 : 0; }
+function price(km, n) {
+  if (n <= 1) return km >= DATA.farFromKm ? P.far : P.near;
+  return P.two + (n - 2) * P.extra;
+}
+
+function update() {
+  const n = nights();
+  $("chosen").textContent = dest ? `✓ ${dest.name}, ${dest.state}` : "";
+  $("s-d").textContent = dest ? dest.name : "–";
+  $("s-k").textContent = dest ? dest.km + " km" : "–";
+  $("s-t").textContent = start ? (end ? `${fmt(start)} – ${fmt(end)}` : fmt(start)) : "–";
+  $("s-n").textContent = n ? `${n} hari` : "–";
+  const ready = dest && start;
+  const total = ready ? price(dest.km, n) : null;
+  $("s-p").textContent = ready ? rm(total) : "–";
+
+  const wa = $("wa");
+  if (!ready) { wa.className = "btn off"; wa.textContent = "Pilih destinasi & tarikh dahulu"; wa.removeAttribute("href"); return; }
+  const lines = [
+    `Salam, saya ingin menyemak tempahan ${DATA.name}.`,
+    ``,
+    `Destinasi: ${dest.name}, ${dest.state} (${dest.km} km)`,
+    `Tarikh: ${end ? fmt(start) + " hingga " + fmt(end) : fmt(start)} (${n} hari)`,
+    `Anggaran harga: ${rm(total)}`,
+  ];
+  const nm = $("nm").value.trim(), nt = $("nt").value.trim(), pax = $("pax").value;
+  if (nm) lines.push(`Nama: ${nm}`);
+  if (pax) lines.push(`Penumpang: ${pax} orang`);
+  if (nt) lines.push(`Catatan: ${nt}`);
+  lines.push(``, `Boleh sahkan ketersediaan? Terima kasih.`);
+  const phone = "6" + DATA.phone.replace(/\D/g, "").replace(/^6/, "");
+  wa.href = `https://wa.me/${phone}?text=${encodeURIComponent(lines.join("\n"))}`;
+  wa.className = "btn";
+  wa.textContent = "WhatsApp pemilik untuk sahkan";
+}
+["nm","pax","nt"].forEach(id => $(id).addEventListener("input", update));
+
+renderList(); renderCal(); update();
+</script>
+</body>
+</html>
+
+</body></html>
